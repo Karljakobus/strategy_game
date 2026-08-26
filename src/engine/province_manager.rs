@@ -37,7 +37,7 @@ pub fn province_click_system(
     camera: Single<(&Camera, &GlobalTransform)>,
     provinces: Query<(&Province, &GlobalTransform)>,
     mut commands: Commands,
-    displays: Query<(Entity, &TextSystem), With<TextSystem>>,
+    displays: Query<(Entity, &TextSystem),>,
 ) {
     if !buttons.just_pressed(MouseButton::Left) {
         return;

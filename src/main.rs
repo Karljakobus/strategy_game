@@ -2,17 +2,19 @@ use bevy::{prelude::*,};
 mod engine;
 use engine::province_manager;
 use engine::province_manager::*;
+use engine::player;
+use engine::player::*;
+use engine::time;
 mod render;
 use render::polygon_render;
 use render::camera;
-use render::camera::*;
 use render::text_display;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, (setup_scene, setup_instructions, camera::setup_camera))
-        .add_systems(Update, ((camera::move_player, camera::update_camera).chain(),province_manager::province_click_system))
+        .add_systems(Startup, (setup_scene, setup_instructions, camera::setup_camera, time::setup_time))
+        .add_systems(Update, ((camera::move_player, camera::update_camera).chain(),province_manager::province_click_system, time::update_time, player::player_inputs))
         .run();
 }
 
