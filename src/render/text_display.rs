@@ -47,6 +47,48 @@ pub fn create_text_ur(
     ));
 }
 
+pub fn create_text_ul(
+    commands: &mut Commands,
+    text: String,
+    id: String,
+    x: i32,
+    y: i32,
+) {
+    commands.spawn((
+        Text::new(text),
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(y),
+            left: px(x),
+            ..default()
+        },
+        TextSystem {
+            id
+        },
+    ));
+}
+
+pub fn create_text_dr(
+    commands: &mut Commands,
+    text: String,
+    id: String,
+    x: i32,
+    y: i32,
+) {
+    commands.spawn((
+        Text::new(text),
+        Node {
+            position_type: PositionType::Absolute,
+            bottom: px(y),
+            right: px(x),
+            ..default()
+        },
+        TextSystem {
+            id
+        },
+    ));
+}
+
 pub fn modify_display(
     text: String,
     displays: &mut Query<(&TextSystem, &mut Text)>,

@@ -1,11 +1,40 @@
-use bevy::{prelude::*,};
-use crate::render::text_display;
+use rand::prelude::*;
+
+use crate::render::{polygon_render, text_display};
 use crate::render::text_display::*;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Province {
     pub points: Vec<Vec2>,
     pub id: String,
+}
+
+pub fn spawn_province(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+    points: Vec<Vec2>,
+    province_id: String,
+) {
+    commands.spawn((
+        Transform::default(),
+        Visibility::default(),
+        children![
+            (
+                Mesh2d(meshes.add(polygon_render::create_polygon_mesh(points.clone())),),
+                MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))),
+            ),
+            (
+                Mesh2d(meshes.add(polygon_render::create_outline_mesh(&points.clone(), 4.))),
+                MeshMaterial2d(materials.add(Color::BLACK)),
+            ),
+        ],
+        Province {
+            points: points.clone(),
+            id: province_id,
+        },
+    ));
 }
 
 pub fn point_in_polygon(point: Vec2, polygon: &[Vec2]) -> bool {
@@ -18,9 +47,7 @@ pub fn point_in_polygon(point: Vec2, polygon: &[Vec2]) -> bool {
         let b = polygon[j];
 
         if ((a.y > point.y) != (b.y > point.y))
-            && (point.x < (b.x - a.x) * (point.y - a.y)
-                / (b.y - a.y)
-                + a.x)
+            && (point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x)
         {
             inside = !inside;
         }
@@ -37,7 +64,7 @@ pub fn province_click_system(
     camera: Single<(&Camera, &GlobalTransform)>,
     provinces: Query<(&Province, &GlobalTransform)>,
     mut commands: Commands,
-    displays: Query<(Entity, &TextSystem),>,
+    displays: Query<(Entity, &TextSystem)>,
 ) {
     if !buttons.just_pressed(MouseButton::Left) {
         return;
@@ -51,9 +78,7 @@ pub fn province_click_system(
 
     let (camera, camera_transform) = camera.into_inner();
 
-    let Ok(world_position) =
-        camera.viewport_to_world_2d(camera_transform, cursor_position)
-    else {
+    let Ok(world_position) = camera.viewport_to_world_2d(camera_transform, cursor_position) else {
         return;
     };
 
@@ -70,7 +95,13 @@ pub fn province_click_system(
         if point_in_polygon(local_position, &province.points) {
             println!("Province clicked!");
             text_display::delete_display(&mut commands, displays, "province".to_string());
-            text_display::create_text(&mut commands, province.id.clone(), "province".to_string(), 12, 300);
+            text_display::create_text_ul(
+                &mut commands,
+                province.id.clone(),
+                "province".to_string(),
+                12,
+                12,
+            );
             found_province = true;
         }
     }

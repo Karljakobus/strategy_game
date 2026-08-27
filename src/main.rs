@@ -1,21 +1,58 @@
-use bevy::{prelude::*,};
+use bevy::camera::CameraPlugin;
+use bevy::prelude::*;
+use bevy::time::TimePlugin;
+use rand::prelude::*;
+use std::ops::Add;
 mod engine;
-use engine::province_manager;
-use engine::province_manager::*;
 use engine::player;
 use engine::player::*;
+use engine::province_manager;
+use engine::province_manager::*;
 use engine::time;
 mod render;
-use render::polygon_render;
 use render::camera;
+use render::polygon_render;
 use render::text_display;
 
+use crate::engine::player::PlayerPlugin;
+use crate::engine::time::TickPlugin;
+
+const TILE_SIZE: i32 = 100;
+
+#[derive(Resource, Debug)]
+pub struct Seed(pub i64, pub StdRng);
+
 fn main() {
-    App::new()
-        .add_plugins(DefaultPlugins)
-        .add_systems(Startup, (setup_scene, setup_instructions, camera::setup_camera, time::setup_time))
-        .add_systems(Update, ((camera::move_player, camera::update_camera).chain(),province_manager::province_click_system, time::update_time, player::player_inputs))
-        .run();
+    let mut rng = rand::rng();
+    let seed_num = rng.random();
+    let seed = Seed(seed_num, StdRng::seed_from_u64(seed_num as u64));
+
+    let render = true;
+
+    if (render) {
+        App::new()
+            .add_plugins(DefaultPlugins)
+            .add_plugins(TextPlugin)
+            .add_plugins(PlayerPlugin)
+            .add_plugins(TickPlugin)
+            .insert_resource(seed)
+            .add_systems(Startup, (setup_scene))
+            .run();
+    } else {
+        App::new()
+            .add_plugins(MinimalPlugins)
+            .add_plugins(TickPlugin)
+            .insert_resource(seed)
+            .run();
+    }
+}
+
+pub struct TextPlugin;
+
+impl Plugin for TextPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, (setup_instructions, get_seed));
+    }
 }
 
 fn setup_scene(
@@ -24,75 +61,39 @@ fn setup_scene(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // World where we move the player
-    let points = vec![
-        Vec2::new(0.0, 100.0),
-        Vec2::new(100.0, 0.0),
-        Vec2::new(0.0, -100.0),
-        Vec2::new(-100.0, 0.0),
-    ];
+    for i in 0..10 {
+        for j in 0..10 {
+            let points = vec![
+                Vec2::new((i * TILE_SIZE) as f32, (j * TILE_SIZE) as f32),
+                Vec2::new((i * TILE_SIZE + TILE_SIZE) as f32, (j * TILE_SIZE) as f32),
+                Vec2::new(
+                    (i * TILE_SIZE + TILE_SIZE) as f32,
+                    (j * TILE_SIZE + TILE_SIZE) as f32,
+                ),
+                Vec2::new((i * TILE_SIZE) as f32, (j * TILE_SIZE + TILE_SIZE) as f32),
+            ];
 
-    let points2 = vec![
-        Vec2::new(100.0, 200.0),
-        Vec2::new(200.0, 100.0),
-        Vec2::new(100.0, 0.0),
-        Vec2::new(0.0, 100.0),
-    ];
-
-    commands.spawn((
-        Transform::default(),
-        Visibility::default(),
-        children![
-            (
-                Mesh2d(meshes.add(polygon_render::create_polygon_mesh(
-                    points.clone()
-                )),),
-                MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))),
-            ),
-            (
-                Mesh2d(meshes.add(polygon_render::create_outline_mesh(
-                    &points.clone(),
-                    4.
-                ))),
-                MeshMaterial2d(materials.add(Color::BLACK)),
-            ),
-        ],
-        Province {
-            points: points.clone(),
-            id: "a".to_string(),
-        },
-    ));
-
-    commands.spawn((
-        Transform::default(),
-        Visibility::default(),
-        children![
-            (
-                Mesh2d(meshes.add(polygon_render::create_polygon_mesh(
-                    points2.clone()
-                )),),
-                MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))),
-            ),
-            (
-                Mesh2d(meshes.add(polygon_render::create_outline_mesh(
-                    &points2.clone(),
-                    4.
-                ))),
-                MeshMaterial2d(materials.add(Color::BLACK)),
-            ),
-        ],
-        Province {
-            points: points2.clone(),
-            id: "b".to_string(),
-        },
-    ));
-
-    // Player
-    commands.spawn((
-        Player,
-        Transform::from_xyz(0., 0., 2.),
-    ));
+            province_manager::spawn_province(
+                &mut commands,
+                &mut meshes,
+                &mut materials,
+                points,
+                i.to_string().add(&j.to_string()),
+            );
+        }
+    }
 }
 
 fn setup_instructions(mut commands: Commands) {
-    text_display::create_text(&mut commands, "Move with WASD.\nSprint with Shift.".to_string(), "info".to_string(), 12, 12);
+    text_display::create_text(
+        &mut commands,
+        "Move with WASD.\nSprint with Shift.".to_string(),
+        "info".to_string(),
+        12,
+        12,
+    );
+}
+
+fn get_seed(seed: Res<crate::Seed>) {
+    println!("Global seed: {}", seed.0);
 }

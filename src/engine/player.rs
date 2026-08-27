@@ -1,9 +1,30 @@
 use bevy::{prelude::*,};
 
+use crate::engine::province_manager;
 use crate::engine::time::WorldTime;
+use crate::render::camera;
+
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, (camera::setup_camera, setup_player));
+        app.add_systems(
+            Update,
+            ((camera::move_player, camera::update_camera).chain(), player_inputs, province_manager::province_click_system,)
+        );
+    }
+}
 
 #[derive(Component)]
 pub struct Player;
+
+pub fn setup_player(
+    mut commands: Commands,
+) {
+    // Player
+    commands.spawn((Player, Transform::from_xyz(0., 0., 2.)));
+}
 
 pub fn player_inputs(
     player: Single<&Transform, (With<Player>, Without<Camera2d>)>,

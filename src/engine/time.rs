@@ -4,6 +4,18 @@ use crate::render::text_display::*;
 
 use bevy::{prelude::*,};
 
+pub struct TickPlugin;
+
+impl Plugin for TickPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, (setup_time));
+        app.add_systems(
+            Update,
+            (update_time)
+        );
+    }
+}
+
 #[derive(Component)]
 pub struct WorldTime {
     hours: i8,
@@ -56,9 +68,9 @@ pub fn update_time(
 }
 
 pub fn hour_tick() {
-    
+
 }
 
 pub fn day_tick() {
-
+    
 }
