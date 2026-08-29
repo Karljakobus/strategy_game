@@ -9,7 +9,7 @@ use bevy_replicon_renet::{
     netcode::{NetcodeServerTransport, ServerAuthentication, ServerConfig},
     renet::{ConnectionConfig},
 };
-use shared::{Ping, Pong, ProtocolPlugin};
+use shared::{ClientMessage, ServerMessage, ProtocolPlugin};
 
 const PORT: u16 = 5000;
 const PROTOCOL_ID: u64 = 0x11223344;
@@ -53,14 +53,11 @@ fn start_server(mut commands: Commands, channels: Res<RepliconChannels>) {
 }
 
 fn echo(
-    mut pings: MessageReader<FromClient<Ping>>,
-    mut pongs: MessageWriter<ToClients<Pong>>,
+    mut client_messages: MessageReader<FromClient<ClientMessage>>,
+    mut server_messages: MessageWriter<ToClients<ServerMessage>>,
 ) {
-    for ping in pings.read() {
-        println!("Ping von Client {}", ping.client_id);
-        pongs.write(ToClients {
-            targets: SendTargets::All,
-            message: Pong,
-        });
+    for message in client_messages.read() {
+        println!("Message von Client {}: {}", message.client_id, message.msg);
+        
     }
 }
