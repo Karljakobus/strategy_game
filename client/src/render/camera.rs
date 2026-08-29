@@ -1,5 +1,5 @@
 use bevy::{post_process::bloom::Bloom, prelude::*,};
-use crate::engine::player::*;
+use crate::core::player::*;
 
 /// Player movement speed factor.
 const PLAYER_SPEED: f32 = 200.;

@@ -1,0 +1,10 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+rand = "0.10.2"
+bevy_ecs = "0.19.1"
+bevy_app = "0.19.1"
+bevy_math = "0.19.1"
+bevy_time = "0.19.1"

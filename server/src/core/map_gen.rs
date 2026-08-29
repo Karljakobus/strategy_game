@@ -2,8 +2,8 @@
 use rand::SeedableRng;
 use rand::RngExt;
 use std::collections::VecDeque;
-use bevy::prelude::*;
-use crate::engine::province_manager::{Province, TerrainType};
+use bevy_math::Vec2;
+use crate::core::province_manager::{Province, TerrainType};
 
 const CELL_SIZE: usize = 30;
 pub struct MapData {

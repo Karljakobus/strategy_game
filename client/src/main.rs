@@ -3,19 +3,19 @@ use bevy::prelude::*;
 use bevy::time::TimePlugin;
 use rand::prelude::*;
 use std::ops::Add;
-mod engine;
-use engine::player;
-use engine::player::*;
-use engine::province_manager;
-use engine::province_manager::*;
-use engine::time;
+mod core;
+use core::player;
+use core::player::*;
+use core::province_manager;
+use core::province_manager::*;
+use core::time;
 mod render;
 use render::camera;
 use render::polygon_render;
 use render::text_display;
 
-use crate::engine::player::PlayerPlugin;
-use crate::engine::time::TickPlugin;
+use crate::core::player::PlayerPlugin;
+use crate::core::time::TickPlugin;
 
 const TILE_SIZE: i32 = 100;
 

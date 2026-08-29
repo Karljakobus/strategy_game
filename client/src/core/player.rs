@@ -1,7 +1,7 @@
 use bevy::{prelude::*,};
 
-use crate::engine::province_manager;
-use crate::engine::time::WorldTime;
+use crate::core::province_manager;
+use crate::core::time::WorldTime;
 use crate::render::camera;
 
 pub struct PlayerPlugin;

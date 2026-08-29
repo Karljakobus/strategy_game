@@ -1,7 +1,6 @@
 use rand::prelude::*;
-use crate::render::{polygon_render, text_display};
-use crate::render::text_display::*;
-use bevy::prelude::*;
+use bevy_math::prelude::*;
+use bevy_ecs::prelude::*; 
 
 #[derive(Component)]
 pub struct Province {
