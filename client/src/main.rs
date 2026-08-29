@@ -1,21 +1,10 @@
-use bevy::camera::CameraPlugin;
 use bevy::prelude::*;
-use bevy::time::TimePlugin;
 use rand::prelude::*;
-use std::ops::Add;
 mod core;
-use core::player;
-use core::player::*;
-use core::province_manager;
-use core::province_manager::*;
-use core::time;
 mod render;
-use render::camera;
-use render::polygon_render;
 use render::text_display;
 
 use crate::core::player::PlayerPlugin;
-use crate::core::time::TickPlugin;
 
 const TILE_SIZE: i32 = 100;
 
@@ -33,15 +22,13 @@ fn main() {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(TextPlugin)
-            //.add_plugins(PlayerPlugin)
-            .add_plugins(TickPlugin)
+            .add_plugins(PlayerPlugin)
             .insert_resource(seed)
-            //.add_systems(Startup, (setup_scene))
+            .add_systems(Startup, (setup_scene))
             .run();
     } else {
         App::new()
             .add_plugins(MinimalPlugins)
-            .add_plugins(TickPlugin)
             .insert_resource(seed)
             .run();
     }
@@ -54,36 +41,15 @@ impl Plugin for TextPlugin {
         app.add_systems(Startup, (setup_instructions, get_seed));
     }
 }
-/*
+
 fn setup_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    // World where we move the player
-    for i in 0..10 {
-        for j in 0..10 {
-            let points = vec![
-                Vec2::new((i * TILE_SIZE) as f32, (j * TILE_SIZE) as f32),
-                Vec2::new((i * TILE_SIZE + TILE_SIZE) as f32, (j * TILE_SIZE) as f32),
-                Vec2::new(
-                    (i * TILE_SIZE + TILE_SIZE) as f32,
-                    (j * TILE_SIZE + TILE_SIZE) as f32,
-                ),
-                Vec2::new((i * TILE_SIZE) as f32, (j * TILE_SIZE + TILE_SIZE) as f32),
-            ];
-
-            province_manager::spawn_province(
-                &mut commands,
-                &mut meshes,
-                &mut materials,
-                points,
-                i.to_string().add(&j.to_string()),
-            );
-        }
-    }
+    commands.spawn(( Mesh2d(meshes.add(Rectangle::new(1000., 700.))), MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))), ));
 }
- */
+
 fn setup_instructions(mut commands: Commands) {
     text_display::create_text(
         &mut commands,
