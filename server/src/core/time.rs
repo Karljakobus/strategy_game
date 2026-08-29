@@ -1,9 +1,7 @@
 use std::{ops::Add, time::Duration};
-/* 
-use crate::render::text_display::{self, create_text_ur, delete_display};
-use crate::render::text_display::*;
-
-use bevy::{prelude::*,};
+use bevy_ecs::prelude::*;
+use bevy_app::prelude::*;
+use bevy_time::prelude::*;
 
 pub struct TickPlugin;
 
@@ -38,15 +36,11 @@ pub fn setup_time(
             paused: false,
         },
     ));
-
-    create_text_ur(&mut commands, ("0:00 - day: ".to_string() + &0.to_string()).to_string(), "time".to_string(), 12, 12);
-    create_text_ur(&mut commands, ("speed: ".to_string() + &1.to_string()).to_string(), "speed".to_string(), 12, 42);
 }
 
 pub fn update_time(
     time: Res<Time>,
     mut timer: Single<&mut WorldTime>,
-    mut displays: Query<(&TextSystem, &mut Text)>,
 ) {
     let elapsed = time.elapsed();
     let diff = elapsed.abs_diff(timer.last_tick);
@@ -60,11 +54,7 @@ pub fn update_time(
                 timer.days += 1;
                 day_tick();
             }
-            modify_display(timer.hours.to_string().add(&":00 - day: ".to_string().add(&timer.days.to_string())), &mut displays, "time".to_string());
         }
-        modify_display("speed :".to_string().add(&timer.speed.to_string()), &mut displays, "speed".to_string());
-    } else {
-        modify_display("PAUSED".to_string(), &mut displays, "speed".to_string());
     }
 }
 
@@ -75,4 +65,3 @@ pub fn hour_tick() {
 pub fn day_tick() {
     
 }
-*/

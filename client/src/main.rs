@@ -23,6 +23,7 @@ fn main() {
             .add_plugins(DefaultPlugins)
             .add_plugins(TextPlugin)
             .add_plugins(PlayerPlugin)
+            .add_plugins(core::net::NetworkPlugin)
             .insert_resource(seed)
             .add_systems(Startup, (setup_scene))
             .run();

@@ -1,0 +1,10 @@
+[package]
+name = "shared"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy_app = "0.19.1"
+bevy_ecs = "0.19.1"
+bevy_replicon = { version = "0.43.0", default-features = false }
+serde = { version = "1.0.229", features = ["derive"] }
