@@ -1,42 +1,26 @@
 use rand::prelude::*;
-
 use crate::render::{polygon_render, text_display};
 use crate::render::text_display::*;
 use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Province {
-    pub points: Vec<Vec2>,
-    pub id: String,
+    pub neighbors: Vec<usize>, //Indizes der benachbarten Provinzen im MapData.provinces Vektor
+    pub terrain: TerrainType,
+    pub size: usize, //Fläche der Provinz
+    pub center_pos: Vec2, //Zentrum der Provinz
+}
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum TerrainType {
+    Grassland,
+    Forest,
+    Mountain,
+    Ocean,
+    Lake,
+    Desert,
 }
 
-pub fn spawn_province(
-    commands: &mut Commands,
-    meshes: &mut ResMut<Assets<Mesh>>,
-    materials: &mut ResMut<Assets<ColorMaterial>>,
-    points: Vec<Vec2>,
-    province_id: String,
-) {
-    commands.spawn((
-        Transform::default(),
-        Visibility::default(),
-        children![
-            (
-                Mesh2d(meshes.add(polygon_render::create_polygon_mesh(points.clone())),),
-                MeshMaterial2d(materials.add(Color::srgb(0.2, 0.2, 0.3))),
-            ),
-            (
-                Mesh2d(meshes.add(polygon_render::create_outline_mesh(&points.clone(), 4.))),
-                MeshMaterial2d(materials.add(Color::BLACK)),
-            ),
-        ],
-        Province {
-            points: points.clone(),
-            id: province_id,
-        },
-    ));
-}
-
+/*
 pub fn point_in_polygon(point: Vec2, polygon: &[Vec2]) -> bool {
     let mut inside = false;
 
@@ -110,3 +94,4 @@ pub fn province_click_system(
         text_display::delete_display(&mut commands, displays, "province".to_string());
     }
 }
+ */

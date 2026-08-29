@@ -33,10 +33,10 @@ fn main() {
         App::new()
             .add_plugins(DefaultPlugins)
             .add_plugins(TextPlugin)
-            .add_plugins(PlayerPlugin)
+            //.add_plugins(PlayerPlugin)
             .add_plugins(TickPlugin)
             .insert_resource(seed)
-            .add_systems(Startup, (setup_scene))
+            //.add_systems(Startup, (setup_scene))
             .run();
     } else {
         App::new()
@@ -54,7 +54,7 @@ impl Plugin for TextPlugin {
         app.add_systems(Startup, (setup_instructions, get_seed));
     }
 }
-
+/*
 fn setup_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -83,7 +83,7 @@ fn setup_scene(
         }
     }
 }
-
+ */
 fn setup_instructions(mut commands: Commands) {
     text_display::create_text(
         &mut commands,

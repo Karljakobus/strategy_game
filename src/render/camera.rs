@@ -6,7 +6,7 @@ const PLAYER_SPEED: f32 = 200.;
 
 /// How quickly should the camera snap to the desired location.
 const CAMERA_DECAY_RATE: f32 = 10.;
-
+/*
 pub fn setup_camera(mut commands: Commands) {
     commands.spawn((Camera2d, Bloom::NATURAL));
 }
@@ -66,3 +66,4 @@ pub fn move_player(
     let move_delta = direction.normalize_or_zero() * PLAYER_SPEED * time.delta_secs() * sprint;
     player.translation += move_delta.extend(0.);
 }
+*/

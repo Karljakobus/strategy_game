@@ -5,7 +5,7 @@ use crate::engine::time::WorldTime;
 use crate::render::camera;
 
 pub struct PlayerPlugin;
-
+/*
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (camera::setup_camera, setup_player));
@@ -64,3 +64,4 @@ pub fn player_inputs(
         timer.speed = 5;
     }
 }
+*/
