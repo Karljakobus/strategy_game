@@ -11,6 +11,8 @@ use bevy_replicon_renet::{
 };
 use shared::{ClientMessage, ServerMessage, ProtocolPlugin};
 
+use crate::core::time::{WorldTime, send_date, send_speed};
+
 const PORT: u16 = 5000;
 const PROTOCOL_ID: u64 = 0x11223344;
 
@@ -20,7 +22,7 @@ impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((RepliconPlugins, RepliconRenetPlugins, ProtocolPlugin))
             .add_systems(Startup, start_server)
-            .add_systems(PreUpdate, echo.after(ServerSystems::Receive));
+            .add_systems(PreUpdate, receive_message.after(ServerSystems::Receive));
     }
 }
 
@@ -52,12 +54,48 @@ fn start_server(mut commands: Commands, channels: Res<RepliconChannels>) {
     println!("Server lauscht auf {addr}");
 }
 
-fn echo(
-    mut client_messages: MessageReader<FromClient<ClientMessage>>,
+fn receive_message(
+    mut messages: MessageReader<FromClient<ClientMessage>>,
     mut server_messages: MessageWriter<ToClients<ServerMessage>>,
+    mut commands: Commands,
+    mut timer: Single<&mut WorldTime>,
 ) {
-    for message in client_messages.read() {
-        println!("Message von Client {}: {}", message.client_id, message.msg);
-        
+    for message in messages.read() {
+        println!("Message vom Client '{}'", message.msg);
+        let args: Vec<&str> = message.msg.split(' ').collect();
+        println!("{} : {}", args.get(0).copied().unwrap_or(""), args.get(1).copied().unwrap_or(""));
+        match args.get(0).copied().unwrap_or("") {
+            "time" => {
+                match args.get(1).copied().unwrap_or("") {
+                    "change" => {
+                        if (timer.paused) {
+                            timer.paused = false;
+                        } else {
+                            timer.paused = true;
+                        }
+                    }
+                    "speed" => {
+                        timer.paused = false;
+                        timer.speed = args
+                            .get(2)
+                            .copied()
+                            .unwrap_or("")
+                            .parse::<i16>()
+                            .unwrap_or(timer.speed);
+                    }
+                    _ => {}
+                }
+            }
+            "request" => {
+                match args.get(1).copied().unwrap_or("") {
+                    "time" => {
+                        send_date(&mut timer, &mut server_messages);
+                        send_speed(&mut timer, &mut server_messages);
+                    }
+                    _ => {}
+                }
+            }
+            _ => {}
+        }
     }
 }

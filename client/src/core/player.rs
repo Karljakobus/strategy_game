@@ -1,15 +1,17 @@
 use bevy::{prelude::*,};
+use bevy_replicon::shared::message::client_message;
+use shared::ClientMessage;
 
-use crate::render::camera;
+use crate::{GameSet, GameState, render::camera};
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (camera::setup_camera, setup_player));
+        app.add_systems(OnEnter(GameState::InGame), (camera::setup_camera, setup_player),);
         app.add_systems(
             Update,
-            ((camera::move_player, camera::update_camera).chain(),)
+            ((camera::move_player, camera::update_camera).chain(),player_inputs).in_set(GameSet),
         );
     }
 }
@@ -20,47 +22,50 @@ pub struct Player;
 pub fn setup_player(
     mut commands: Commands,
 ) {
+    println!("!!! setup_player");
+
     // Player
     commands.spawn((Player, Transform::from_xyz(0., 0., 2.)));
 }
 
-/*
+
 pub fn player_inputs(
-    player: Single<&Transform, (With<Player>, Without<Camera2d>)>,
     kb_input: Res<ButtonInput<KeyCode>>,
-    mut timer: Single<&mut WorldTime>,
+    mut client_messages: MessageWriter<ClientMessage>
 ) {
     if kb_input.just_pressed(KeyCode::Space) {
-        if (timer.paused) {
-            timer.paused = false;
-        } else {
-            timer.paused = true;
-        }
+        client_messages.write(
+            ClientMessage { msg: ("time change".to_string()) },
+        );
     }
 
     if kb_input.just_pressed(KeyCode::Digit1) {
-        timer.paused = false;
-        timer.speed = 1;
+        client_messages.write(
+            ClientMessage { msg: ("time speed 1".to_string()) },
+        );
     }
 
     if kb_input.just_pressed(KeyCode::Digit2) {
-        timer.paused = false;
-        timer.speed = 2;
+        client_messages.write(
+            ClientMessage { msg: ("time speed 2".to_string()) },
+        );
     }
 
     if kb_input.just_pressed(KeyCode::Digit3) {
-        timer.paused = false;
-        timer.speed = 3;
+        client_messages.write(
+            ClientMessage { msg: ("time speed 3".to_string()) },
+        );
     }
 
     if kb_input.just_pressed(KeyCode::Digit4) {
-        timer.paused = false;
-        timer.speed = 4;
+        client_messages.write(
+            ClientMessage { msg: ("time speed 4".to_string()) },
+        );
     }
 
     if kb_input.just_pressed(KeyCode::Digit5) {
-        timer.paused = false;
-        timer.speed = 5;
+        client_messages.write(
+            ClientMessage { msg: ("time speed 5".to_string()) },
+        );
     }
 }
-*/

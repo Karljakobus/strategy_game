@@ -39,7 +39,7 @@ pub fn setup_time(
             years: 1920,
             last_tick: Duration::ZERO,
             speed: 1,
-            paused: false,
+            paused: true,
         },
     ));
 }
@@ -70,11 +70,39 @@ pub fn update_time(
                 timer.months = 1;
                 timer.years += 1;
             }
-            server_messages.write(ToClients {
-                targets: SendTargets::All,
-                message: ServerMessage { msg: ("time ".to_string().add(&timer.days.to_string().add(&" ".to_string().add(&timer.weeks.to_string().add(&" ".to_string().add(&timer.months.to_string().add(&" ".to_string().add(&timer.years.to_string())))))))) },
-            });
+            
         }
+
+        send_date(&mut timer, &mut server_messages);
+    }
+    send_speed(&mut timer, &mut server_messages);
+    
+}
+
+pub fn send_date(
+    timer: &mut Single<&mut WorldTime>,
+    server_messages: &mut MessageWriter<ToClients<ServerMessage>>,
+) {
+    server_messages.write(ToClients {
+        targets: SendTargets::All,
+        message: ServerMessage { msg: ("time set ".to_string().add(&timer.days.to_string().add(&" ".to_string().add(&timer.weeks.to_string().add(&" ".to_string().add(&timer.months.to_string().add(&" ".to_string().add(&timer.years.to_string())))))))) },
+    });
+}
+
+pub fn send_speed(
+    timer: &mut Single<&mut WorldTime>,
+    server_messages: &mut MessageWriter<ToClients<ServerMessage>>,
+) {
+    if (timer.paused) {
+        server_messages.write(ToClients {
+            targets: SendTargets::All,
+            message: ServerMessage { msg: ("time paused".to_string()) },
+        });
+    } else {
+        server_messages.write(ToClients {
+            targets: SendTargets::All,
+            message: ServerMessage { msg: ("time speed ".to_string().add(&timer.speed.to_string())) },
+        });
     }
 }
 

@@ -8,6 +8,7 @@ const PLAYER_SPEED: f32 = 200.;
 const CAMERA_DECAY_RATE: f32 = 10.;
 
 pub fn setup_camera(mut commands: Commands) {
+    println!("!!! setup_camera");
     commands.spawn((Camera2d, Bloom::NATURAL));
 }
 
