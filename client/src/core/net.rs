@@ -1,6 +1,7 @@
 use std::net::{Ipv4Addr, SocketAddr, UdpSocket};
 use std::ops::Add;
 use std::time::SystemTime;
+use crate::render::game_gui::{DateText, TimeButton};
 use crate::{GameSet, GameState};
 use crate::render::text_display::{self, TextSystem};
 
@@ -68,7 +69,8 @@ fn request_gamestate(
 fn receive_message(
     mut messages: MessageReader<ServerMessage>,
     mut commands: Commands,
-    mut displays: Query<(&TextSystem, &mut Text)>,
+    mut date_query: Query<&mut Text, With<DateText>>,
+    mut time_button_query: Query<(&TimeButton, &mut BackgroundColor), With<TimeButton>>,
 ) {
     for message in messages.read() {
         println!("Message vom Server '{}'", message.msg);
@@ -77,28 +79,36 @@ fn receive_message(
             "time" => {
                 match args.get(1).copied().unwrap_or("") {
                     "set" => {
-                        text_display::modify_display(
-                            "date: ".to_string().add(&args.get(2).unwrap_or(&"").to_string().add(&".".to_string().add(&args.get(3).unwrap_or(&"").to_string().add(&".".to_string().add(&args.get(4).unwrap_or(&"").to_string().add(&".".to_string().add(&args.get(5).unwrap_or(&"").to_string()))))))),
-                            &mut displays,
-                            "time".to_string(),
-                        );
+                        for mut text in &mut date_query {
+                            //text.0 = "date: ".to_string().add(&args.get(2).unwrap_or(&"").to_string().add(&".".to_string().add(&args.get(3).unwrap_or(&"").to_string().add(&".".to_string().add(&args.get(4).unwrap_or(&"").to_string().add(&".".to_string().add(&args.get(5).unwrap_or(&"").to_string())))))));
+                            text.0 = format!(
+                                "{}.{}.{}",
+                                args.get(2).unwrap_or(&"").to_string().parse::<usize>().unwrap() + (7 * (args.get(3).unwrap_or(&"").to_string().parse::<usize>().unwrap() - 1)),
+                                args.get(4).unwrap_or(&"").to_string().parse::<usize>().unwrap(),
+                                args.get(5).unwrap_or(&"").to_string().parse::<usize>().unwrap()
+                            );
+                        }
                     }
                     
                     "paused" => {
-                        text_display::modify_display(
-                            "speed: paused".to_string(),
-                            &mut displays,
-                            "speed".to_string(),
-                        );
+                        for (time, mut bg_color) in &mut time_button_query {
+                            if (time.id == 0) {
+                                *bg_color = Color::srgb(0., 0.7, 0.).into();
+                            } else {
+                                *bg_color = Color::BLACK.into();
+                            }
+                        }
                     }
                     
                     "speed" => {
-                        let speed = args.get(2).unwrap_or(&"").to_string();
-                        text_display::modify_display(
-                            format!("speed: {}", speed),
-                            &mut displays,
-                            "speed".to_string(),
-                        );
+                        let speed = args.get(2).unwrap_or(&"0").to_string().parse::<usize>().unwrap();
+                        for (time, mut bg_color) in &mut time_button_query {
+                            if (time.id == speed) {
+                                *bg_color = Color::srgb(0., 0.7, 0.).into();
+                            } else {
+                                *bg_color = Color::BLACK.into();
+                            }
+                        }
                     }
                     
                     

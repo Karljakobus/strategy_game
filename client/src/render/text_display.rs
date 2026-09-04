@@ -14,6 +14,7 @@ pub fn create_text(
 ) {
     commands.spawn((
         Text::new(text),
+        GlobalZIndex(20),
         Node {
             position_type: PositionType::Absolute,
             bottom: px(y),

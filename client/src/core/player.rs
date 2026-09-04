@@ -2,7 +2,7 @@ use bevy::{prelude::*,};
 use bevy_replicon::shared::message::client_message;
 use shared::ClientMessage;
 
-use crate::{GameSet, GameState, render::camera};
+use crate::{GameSet, GameState, render::{camera, game_gui::{NotificationList, SubMenu}, notification::add_notification}};
 
 pub struct PlayerPlugin;
 
@@ -31,7 +31,10 @@ pub fn setup_player(
 
 pub fn player_inputs(
     kb_input: Res<ButtonInput<KeyCode>>,
-    mut client_messages: MessageWriter<ClientMessage>
+    mut client_messages: MessageWriter<ClientMessage>,
+    mut commands: Commands,
+    not_query: Query<Entity, With<NotificationList>>,
+    submenu_query: Query<Entity, With<SubMenu>>,
 ) {
     if kb_input.just_pressed(KeyCode::Space) {
         client_messages.write(
@@ -67,5 +70,24 @@ pub fn player_inputs(
         client_messages.write(
             ClientMessage { msg: ("time speed 5".to_string()) },
         );
+    }
+
+    if kb_input.just_pressed(KeyCode::KeyN) {
+        let Ok(notification_list) = not_query.single() else {
+            return;
+        };
+
+        add_notification(
+            &mut commands,
+            notification_list,
+            "Neue Notification!".to_string(),
+            "Whaow".to_string(),
+        );
+    }
+
+    if kb_input.just_pressed(KeyCode::Escape) {
+        if let Ok(submenu) = submenu_query.single() {
+            commands.entity(submenu).despawn();
+        }
     }
 }

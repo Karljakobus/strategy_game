@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::{GameState};
 
+use crate::render::button_systems::ButtonConfig;
 use crate::start_server;
 
 #[derive(Component)]
@@ -57,14 +58,21 @@ fn setup_main_menu(
 
             (
                 Button,
+                ButtonConfig {
+                    hover: true,
+                },
                 MenuButton::Host,
                 Node {
                     width: px(250),
                     height: px(60),
+                    border: UiRect::all(px(5)),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    border_radius: BorderRadius::MAX,
                     ..default()
                 },
+                BorderColor::all(Color::WHITE),
+                BackgroundColor(Color::BLACK),
                 children![
                     (
                         Text::new("Server starten"),
@@ -74,14 +82,21 @@ fn setup_main_menu(
 
             (
                 Button,
+                ButtonConfig {
+                    hover: true,
+                },
                 MenuButton::Connect,
                 Node {
                     width: px(250),
                     height: px(60),
+                    border: UiRect::all(px(5)),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    border_radius: BorderRadius::MAX,
                     ..default()
                 },
+                BorderColor::all(Color::WHITE),
+                BackgroundColor(Color::BLACK),
                 children![
                     (
                         Text::new("Verbinden"),
@@ -94,17 +109,20 @@ fn setup_main_menu(
 
 fn menu_button_system(
     mut next_state: ResMut<NextState<GameState>>,
-    interaction_query: Query<
-        (&Interaction, &MenuButton),
+    mut interaction_query: Query<
+        (
+            &Interaction, 
+            &mut MenuButton, 
+        ),
         Changed<Interaction>,
     >,
 ) {
-    for (interaction, button) in &interaction_query {
+    for (interaction, mut button) in &mut interaction_query {
         if *interaction != Interaction::Pressed {
             continue;
         }
 
-        match button {
+        match *button {
             MenuButton::Host => {
                 println!("Server starten");
                 start_server();

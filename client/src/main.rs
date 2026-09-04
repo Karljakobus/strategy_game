@@ -5,7 +5,7 @@ mod render;
 use render::text_display;
 use std::process::Command;
 
-use crate::core::player::PlayerPlugin;
+use crate::{core::player::PlayerPlugin, render::{button_systems::button_cursor_system, game_gui::GUIPlugin, window::GameWindowPlugin}};
 use render::main_menu::MainMenuPlugin;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
@@ -19,20 +19,29 @@ enum GameState {
 pub struct GameSet;
 
 #[derive(Resource, Debug)]
-pub struct Rnd(pub StdRng);
+pub struct Rnd{pub rng_object: StdRng}
 
 fn main() {
     let mut rng = rand::rng();
     let seed: u64 = rng.random();
-    let rnd = Rnd(StdRng::seed_from_u64(seed as u64));
+    let rnd = Rnd{rng_object: StdRng::seed_from_u64(seed as u64)};
 
     App::new()
         .add_plugins(DefaultPlugins)
         .init_state::<GameState>()
         .add_plugins(MainMenuPlugin)
         .add_plugins(GamePlugin)
+        .add_plugins(GlobalPlugin)
         .insert_resource(rnd)
         .run();
+}
+
+pub struct GlobalPlugin;
+
+impl Plugin for GlobalPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, button_cursor_system);
+    }
 }
 
 pub struct GamePlugin;
@@ -44,6 +53,8 @@ impl Plugin for GamePlugin {
             TextPlugin,
             PlayerPlugin,
             core::net::NetworkPlugin,
+            GUIPlugin,
+            GameWindowPlugin
         ));
 
         // Alles, was zum Game gehört, läuft nur in InGame
@@ -92,14 +103,11 @@ fn setup_instructions(mut commands: Commands) {
 
     text_display::create_text(
         &mut commands,
-        "Move with WASD.\nSprint with Shift.".to_string(),
+        "Bewegen mit WASD.\nSprinten mit Shift.\nNotification erzeugen mit N.".to_string(),
         "info".to_string(),
         12,
         12,
     );
-
-    text_display::create_text_ur( &mut commands, "date: --".to_string(), "time".to_string(), 12, 12, );
-    text_display::create_text_ur( &mut commands, "speed: --".to_string(), "speed".to_string(), 12, 32, );
 }
 
 fn cleanup_scene() {
